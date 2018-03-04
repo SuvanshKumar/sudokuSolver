@@ -90,6 +90,21 @@ def is_valid_puzzle(puzzle):
 			return False
 	return True
 	
+def complete_one_remaining(puzzle):
+	'''
+	this function checks if only one block is empty in a row, col or a box, then fills it
+	also, whenever any number is filled, it should repeat (loop) itself till that iteration where no new number is filled
+	This function may be called many times by the solve_puzzle method
+	'''
+
+
+	return puzzle
+
+def solve_puzzle(puzzle):
+	puzzle = complete_one_remaining(puzzle)
+	#continue this function and think for what to do later
+
+	return puzzle
 
 puzzle = []
 
@@ -124,9 +139,7 @@ if(not is_valid_puzzle(puzzle)):
 # only during development phase
 assert is_valid_puzzle(puzzle) == True
 
-
-
 puzzle_Backup = puzzle
 
-
-
+puzzle = solve_puzzle(puzzle)
+#the above call should solve the puzzle and return the puzzle object
