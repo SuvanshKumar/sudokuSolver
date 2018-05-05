@@ -1,8 +1,15 @@
-class Sudoku:
+# import pdb
 
+class Sudoku:
+	'''
+SIZE	: number of blocks in one row, number of rows, cols and boxes (should be a perfect square, but not sure)
+puzzle 	: SIZE X SIZE matrix of numbers (1 to SIZE for non-empty blocks, 0 for empty blocks)
+map 	: defines for a given block (81 blocks in 9 by 9 sudoku), how many numbers are possible'''
 	def __init__(self,puzzle=[],SIZE=9):
 		self.puzzle=puzzle
 		self.SIZE=SIZE
+		self.map=[]
+		self.update_map()
 
 	def display_puzzle(self):
 		leng = len(self.puzzle)
@@ -60,6 +67,44 @@ class Sudoku:
 				return False
 		return True
 
+	def update_map(self, row=-1, col=-1, num=-1):
+		if (row==-1 or col==-1 or num==-1):
+			self.map=[]
+			for i in range(self.SIZE):
+				row_list=[]
+				for j in range(self.SIZE):
+					this_map={1,2,3,4,5,6,7,8,9}
+					if self.puzzle[i][j]!=0:
+						this_map={0}
+					else:
+						for k in range(self.SIZE):
+							if self.puzzle[k][j] in this_map:
+								this_map.remove(self.puzzle[k][j])
+						for k in range(self.SIZE):
+							if self.puzzle[i][k] in this_map:
+								this_map.remove(self.puzzle[i][k])
+						box = (i//3)*3+j//3
+						for k1 in range((box//3)*3, (box//3)*3+3):
+							for k2 in range((box%3)*3, (box%3)*3+3):
+								if self.puzzle[k1][k2] in this_map:
+									this_map.remove(self.puzzle[k1][k2])
+					row_list.append(this_map)
+				self.map.append(row_list)
+		else:
+			self.map[row][col]={0}
+			for i in range(self.SIZE):
+				if num in self.map[i][col]:
+					self.map[i][col].remove(num)
+			for j in range(self.SIZE):
+				if num in self.map[row][j]:
+					self.map[row][j].remove(num)
+			box = (i//3)*3+j//3
+			for k1 in range((box//3)*3, (box//3)*3+3):
+				for k2 in range((box%3)*3, (box%3)*3+3):
+					if num in self.map[k1][k2]:
+						self.map[k1][k2].remove(num)
+
+
 	def complete_one_remaining(self):
 		'''
 		this function checks if only one block is empty in a row, col or a box, then fills it
@@ -67,6 +112,8 @@ class Sudoku:
 		This function may be called many times by the solve_puzzle method
 		'''
 		expected_sum = (self.SIZE*(self.SIZE+1))//2
+		# 1+2+3+...+n = n(n+1)/2
+
 		# checking in rows
 		for row in range(self.SIZE):
 			count_zeroes=0
@@ -83,6 +130,7 @@ class Sudoku:
 					if self.puzzle[row][j]==0:
 						index=j
 				self.puzzle[row][index]=(expected_sum-sum)
+				self.update_map(row,index,(expected_sum-sum))
 				return True
 				# because if all numbers present, sum should be expected_sum. So, expected_sum-sum gives the missing number
 		# checking in columns
@@ -101,6 +149,7 @@ class Sudoku:
 					if self.puzzle[j][col]==0:
 						index=j
 				self.puzzle[index][col]=(expected_sum-sum)
+				self.update_map(index,col,(expected_sum-sum))
 				return True
 				# because if all numbers present, sum should be expected_sum. So, expected_sum-sum gives the missing number
 		# checking in boxes
@@ -116,22 +165,47 @@ class Sudoku:
 				sum=0
 				index1=-1
 				index2=-1
-				for i in range((box//3)*3, (box//3)*3+3):
-					for j in range((box%3)*3, (box%3)*3+3):
-						if self.puzzle[i][j]==0:
-							index1=i
-							index2=j
+				for k1 in range((box//3)*3, (box//3)*3+3):
+					for k2 in range((box%3)*3, (box%3)*3+3):
+						sum+=self.puzzle[k1][k2]
+						if self.puzzle[k1][k2]==0:
+							index1=k1
+							index2=k2
 				self.puzzle[index1][index2]=(expected_sum-sum)
+				self.update_map(index1,index2,(expected_sum-sum))
 				return True
 				# because if all numbers present, sum should be expected_sum. So, expected_sum-sum gives the missing number
 		return False
 
+	def check_with_map(self):
+		''' checks the map, if a given block can have only one number, fill it and update the map here itself
+		also, return True in that case'''
+		for i in range(self.SIZE):
+			for j in range(self.SIZE):
+				if self.map[i][j]!={0} and len(self.map[i][j])==1:					
+					for num in self.map[i][j]:
+						break
+					# above is a dirty way to extract element from a set
+					self.puzzle[i][j] = num
+					self.update_map(i,j,num)
+					return True
+		return False
+
+
 	def solve(self):
 		# filling the numbers if only one number is missing in a row, column or box, and repeating till it cannot be done
+		# pdb.set_trace()
 		filled_one = self.complete_one_remaining()
-		while(filled_one):
+		while (filled_one):
 			filled_one = self.complete_one_remaining()
 		#continue this function and think for what to do later
+		self.update_map()
+		checked_with_map = self.check_with_map()
+		while (checked_with_map):
+			filled_one = self.complete_one_remaining()
+			while (filled_one):
+				filled_one = self.complete_one_remaining()
+			checked_with_map = self.check_with_map()
 
 		return
 
@@ -169,7 +243,7 @@ def main():
 	sudoku.display_puzzle()
 
 	# only during development phase
-	assert sudoku.is_valid_puzzle() == True
+	# assert sudoku.is_valid_puzzle() == True
 
 	# puzzle_Backup = puzzle
 
