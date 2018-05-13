@@ -404,7 +404,6 @@ rcb_map : defines for a given row, col or box, a given number can appear at what
 		filled_one = self.complete_one_remaining()
 		while (filled_one):
 			filled_one = self.complete_one_remaining()
-		print('checkpoint 1')
 		#continue this function and think for what to do later		
 		checked_with_map = self.check_with_map()
 		while (checked_with_map):
@@ -413,7 +412,6 @@ rcb_map : defines for a given row, col or box, a given number can appear at what
 				filled_one = self.complete_one_remaining()
 			checked_with_map = self.check_with_map()
 		checked_with_rcb_map = self.check_with_rcb_map()
-		print('checkpoint 2')
 		while (checked_with_rcb_map):
 			checked_with_map = self.check_with_map()
 			while (checked_with_map):
@@ -421,35 +419,34 @@ rcb_map : defines for a given row, col or box, a given number can appear at what
 				while (filled_one):
 					filled_one = self.complete_one_remaining()
 			checked_with_rcb_map = self.check_with_rcb_map()
-		print('checkpoint 3')
 		return
 
-# def main():
+def main():
 	# puzzle = input_puzzle(puzzle)
 	# cannot be made function? (because python uses pass by value)
-SIZE=9
-puzzle1=[]
-for i in range(1,SIZE+1):
-	print("\nEnter row %d\n" % i)
-	b = input()
-	b.strip()
-	while(len(b)!=SIZE):
-		print("Wrong... there must be 9 characters. Please try again\n")
+	SIZE=9
+	puzzle1=[]
+	for i in range(1,SIZE+1):
+		print("\nEnter row %d\n" % i)
 		b = input()
 		b.strip()
-	a = []
-	for j in range(SIZE):
-		if(b[j]>='1' and b[j]<='9'):
-			a.append(int(b[j]))
-		else:
-			a.append(0)
-	puzzle1.append(a)
+		while(len(b)!=SIZE):
+			print("Wrong... there must be 9 characters. Please try again\n")
+			b = input()
+			b.strip()
+		a = []
+		for j in range(SIZE):
+			if(b[j]>='1' and b[j]<='9'):
+				a.append(int(b[j]))
+			else:
+				a.append(0)
+		puzzle1.append(a)
 
-sudoku = Sudoku(puzzle1,SIZE)
+	sudoku = Sudoku(puzzle1,SIZE)
 
-print("The puzzle is")
-sudoku.display_puzzle()
-print('\n') # \n\n for two new lines
+	print("The puzzle is")
+	sudoku.display_puzzle()
+	# print('\n') # \n\n for two new lines
 	
 	# sudoku.solve()
 	# if (not is_valid_puzzle(puzzle)):
@@ -466,5 +463,5 @@ print('\n') # \n\n for two new lines
 	# puzzle = solve_puzzle(puzzle)
 	#the above call should solve the puzzle and return the puzzle object
 
-# if __name__ == '__main__':
-	# main()
+if __name__ == '__main__':
+	main()
