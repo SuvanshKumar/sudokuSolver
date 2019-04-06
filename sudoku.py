@@ -37,7 +37,7 @@ rcb_map : defines for a given row, col or box, a given number can appear at what
 			for i in range(self.SIZE):
 				if self.puzzle[row][i]==num:
 					thisOcc+=1;
-				elif self.puzzle[row][i]<1 or self.puzzle[row][i]>self.SIZE:
+				elif self.puzzle[row][i]<0 or self.puzzle[row][i]>self.SIZE:
 					return False
 			if thisOcc>1:
 				return False
@@ -49,7 +49,7 @@ rcb_map : defines for a given row, col or box, a given number can appear at what
 			for i in range(self.SIZE):
 				if self.puzzle[i][col]==num:
 					thisOcc+=1;
-				elif self.puzzle[i][col]<1 or self.puzzle[i][col]>self.SIZE:
+				elif self.puzzle[i][col]<0 or self.puzzle[i][col]>self.SIZE:
 					return False
 			if thisOcc>1:
 				return False
@@ -63,7 +63,7 @@ rcb_map : defines for a given row, col or box, a given number can appear at what
 				for j in range((box%3)*3, (box%3)*3+3):
 					if self.puzzle[i][j]==num:
 						thisOcc+=1
-					elif self.puzzle[i][j]<1 or self.puzzle[i][j]>self.SIZE:
+					elif self.puzzle[i][j]<0 or self.puzzle[i][j]>self.SIZE:
 						return False
 			if thisOcc>1:
 				return False
@@ -88,9 +88,10 @@ rcb_map : defines for a given row, col or box, a given number can appear at what
 		return self.puzzle[n]
 
 	def get_col(self, n):
-		colList=[]
-		for row in self.puzzle:
-			colList.append(row[n])
+		# colList=[]
+		# for row in self.puzzle:
+		# 	colList.append(row[n])
+		colList = [row[n] for row in self.puzzle]
 		return colList
 
 	def get_box(self, box=None, row=None, col=None):
@@ -271,64 +272,42 @@ rcb_map : defines for a given row, col or box, a given number can appear at what
 
 		# checking in rows
 		for row in range(self.SIZE):
-			count_zeroes=0
-			for j in range(self.SIZE):
-				if self.puzzle[row][j]==0:
-					count_zeroes+=1
-				if count_zeroes>1:
-					break
+			row_list = self.get_row(row)
+			count_zeroes = row_list.count(0)
 			if count_zeroes==1:
-				sum=0
-				index=-1
-				for j in range(self.SIZE):
-					sum+=self.puzzle[row][j]
-					if self.puzzle[row][j]==0:
-						index=j
-				self.fill(row, index, (expected_sum-sum))
+				sum_this = sum(row_list)
+				index = row_list.index(0)
+				self.fill(row, index, (expected_sum-sum_this))
 				# self.puzzle[row][index]=(expected_sum-sum)
 				# self.update_map(row,index,(expected_sum-sum))
 				return True
 				# because if all numbers present, sum should be expected_sum. So, expected_sum-sum gives the missing number
 		# checking in columns
 		for col in range(self.SIZE):
-			count_zeroes=0
-			for j in range(self.SIZE):
-				if self.puzzle[j][col]==0:
-					count_zeroes+=1
-				if count_zeroes>1:
-					break
+			col_list = self.get_col(col)
+			count_zeroes = col_list.count(0)
 			if count_zeroes==1:
-				sum=0
-				index=-1
-				for j in range(self.SIZE):
-					sum+=self.puzzle[j][col]
-					if self.puzzle[j][col]==0:
-						index=j
-				self.fill(index, col, (expected_sum-sum))
+				sum_this = sum(col_list)
+				index = col_list.index(0)
+				self.fill(index, col, (expected_sum-sum_this))
 				# self.puzzle[index][col]=(expected_sum-sum)
 				# self.update_map(index,col,(expected_sum-sum))
 				return True
 				# because if all numbers present, sum should be expected_sum. So, expected_sum-sum gives the missing number
 		# checking in boxes
 		for box in range(self.SIZE):
-			count_zeroes=0
-			for i in range((box//3)*3, (box//3)*3+3):
-				for j in range((box%3)*3, (box%3)*3+3):
-					if self.puzzle[i][j]==0:
-						count_zeroes+=1
-					if count_zeroes>1:
-						break
+			count_zeroes = self.get_box(box).count(0)
 			if count_zeroes==1:
-				sum=0
+				sum_this=0
 				index1=-1
 				index2=-1
 				for k1 in range((box//3)*3, (box//3)*3+3):
 					for k2 in range((box%3)*3, (box%3)*3+3):
-						sum+=self.puzzle[k1][k2]
+						sum_this+=self.puzzle[k1][k2]
 						if self.puzzle[k1][k2]==0:
 							index1=k1
 							index2=k2
-				self.fill(index1, index2, (expected_sum-sum))
+				self.fill(index1, index2, (expected_sum-sum_this))
 				# self.puzzle[index1][index2]=(expected_sum-sum)
 				# self.update_map(index1,index2,(expected_sum-sum))
 				return True
@@ -446,14 +425,14 @@ def main():
 
 	print("The puzzle is")
 	sudoku.display_puzzle()
-	# print('\n') # \n\n for two new lines
+	print('\n') # \n\n for two new lines
 	
-	# sudoku.solve()
-	# if (not is_valid_puzzle(puzzle)):
-	# 	printf("Wrong puzzle")
-	# 	exit()
-	# print("The solved puzzle is")
-	# sudoku.display_puzzle()
+	sudoku.solve()
+	if (not sudoku.is_valid_puzzle()):
+		print("Wrong puzzle")
+		exit()
+	print("The solved puzzle is")
+	sudoku.display_puzzle()
 
 	# only during development phase
 	# assert sudoku.is_valid_puzzle() == True
